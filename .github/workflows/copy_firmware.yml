@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: firmware
-    - name: Build commit message
+    - name: Fetch commit message
       id: step_one
       run: |
         tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
@@ -47,3 +47,19 @@ jobs:
         git branch -m firmware                                         # rename local empty_branch to firmware
         git push origin -u firmware                                    # push branch firmware to repo
         git push origin --delete empty_branch                          # delete empty_branch
+
+    - name: Generate trigger.txt file
+      run: |
+         tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
+         echo ${tas_com_tmp1} &> trigger.txt
+         echo "$(<trigger.txt)"
+    - name: Push trigger.txt to start workflow in repo https://github.com/arendst/Tasmota-firmware
+      uses: Jason2866/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_file: 'trigger.txt'
+        destination_repo: 'arendst/Tasmota-firmware'
+        destination_branch: 'action-development'
+        user_email: 'github-actions@github.com'
+        user_name: 'github-actions'
