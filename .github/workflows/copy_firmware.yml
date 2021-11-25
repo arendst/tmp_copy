@@ -3,7 +3,7 @@ name: Copy_firmware
 on:
   workflow_dispatch:  # Manually start a workflow
   push:
-#    branches: action
+    branches: action-development-off
 
 jobs:
   copycat:
