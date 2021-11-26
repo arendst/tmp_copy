@@ -1,1 +1,1 @@
-# tmp_copy
+Cache for Tasmota firmware file transfer
