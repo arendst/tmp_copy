@@ -21,7 +21,7 @@ jobs:
     - name: copycat tasmota
       uses: andstor/copycat-action@v3
       with:
-        personal_token: ${{ secrets.API_ACTIONS_GITHUB }}
+        personal_token: ${{ secrets.API_TOKEN_GITHUB }}
         src_path: firmware/.
         src_branch: firmware
         dst_path: firmware
@@ -56,7 +56,7 @@ jobs:
     - name: Push trigger.txt to start workflow in repo https://github.com/arendst/Tasmota-firmware
       uses: Jason2866/copy_file_to_another_repo_action@main
       env:
-        API_TOKEN_GITHUB: ${{ secrets.API_ACTIONS_GITHUB }}
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source_file: 'trigger.txt'
         destination_repo: 'arendst/Tasmota-firmware'
