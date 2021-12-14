@@ -1,9 +1,9 @@
-name: Copy_firmware
+name: Copy_firmware_master
 
 on:
   workflow_dispatch:  # Manually start a workflow
   push:
-    branches: action-development
+    branches: action-master
 
 jobs:
   copycat:
@@ -15,16 +15,16 @@ jobs:
     - name: Fetch commit message
       id: step_one
       run: |
-        tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
-        tas_com_tmp="Update from https://github.com/arendst/Tasmota/commit/${tas_com_tmp1}"
+        tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-master/trigger.txt)
+        tas_com_tmp="Based on https://github.com/arendst/Tasmota/commit/${tas_com_tmp1}"
         echo "tas_com=$tas_com_tmp" >> $GITHUB_ENV
     - name: copycat tasmota
       uses: andstor/copycat-action@v3
       with:
         personal_token: ${{ secrets.API_ACTIONS_GITHUB }}
-        src_path: firmware/.
+        src_path: release-firmware/.
         src_branch: firmware
-        dst_path: firmware
+        dst_path: release-firmware
         dst_owner: arendst
         dst_branch: main
         dst_repo_name: Tasmota-firmware
@@ -50,7 +50,7 @@ jobs:
 
     - name: Generate trigger.txt file
       run: |
-         tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
+         tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-master/trigger.txt)
          echo ${tas_com_tmp1} &> trigger.txt
          echo "$(<trigger.txt)"
     - name: Push trigger.txt to start workflow in repo https://github.com/arendst/Tasmota-firmware
@@ -60,6 +60,6 @@ jobs:
       with:
         source_file: 'trigger.txt'
         destination_repo: 'arendst/Tasmota-firmware'
-        destination_branch: 'action-development'
+        destination_branch: 'action-master'
         user_email: 'github-actions@github.com'
         user_name: 'github-actions'
