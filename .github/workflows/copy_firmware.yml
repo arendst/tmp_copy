@@ -50,8 +50,7 @@ jobs:
 
     - name: Generate trigger.txt file
       run: |
-         tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
-         echo ${tas_com_tmp1} &> trigger.txt
+         echo ${{ github.run_number }}  &> trigger.txt
          echo "$(<trigger.txt)"
     - name: Push trigger.txt to start workflow in repo https://github.com/arendst/Tasmota-firmware
       uses: Jason2866/copy_file_to_another_repo_action@main
