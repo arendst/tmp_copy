@@ -9,7 +9,7 @@ jobs:
   copycat:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         ref: firmware
     - name: Fetch commit message
@@ -35,7 +35,7 @@ jobs:
     needs: copycat
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Resets branch firmware to empty
       run: |
         git config --global user.email github-actions@github.com
