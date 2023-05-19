@@ -1,0 +1,69 @@
+name: Copy_firmware
+
+on:
+  workflow_dispatch:  # Manually start a workflow
+  push:
+    branches: action-development
+
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  copycat:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: firmware
+    - name: Fetch commit message
+      id: step_one
+      run: |
+        tas_com_tmp1=$(curl https://raw.githubusercontent.com/arendst/tmp_copy/action-development/trigger.txt)
+        tas_com_tmp="Update from https://github.com/arendst/Tasmota/commit/${tas_com_tmp1}"
+        echo "tas_com=$tas_com_tmp" >> $GITHUB_ENV
+    - name: copycat tasmota
+      uses: andstor/copycat-action@v3
+      with:
+        personal_token: ${{ secrets.API_ACTIONS_GITHUB }}
+        src_path: firmware/.
+        src_branch: firmware
+        dst_path: firmware
+        dst_owner: arendst
+        dst_branch: main
+        dst_repo_name: Tasmota-firmware
+        username: workflow
+        commit_message: ${{ env.tas_com }}
+
+  empty_firmware:
+    needs: copycat
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Resets branch firmware to empty
+      run: |
+        git config --global user.email github-actions@github.com
+        git config --global user.name github-actions
+        git switch --orphan empty_branch                               # create empty branch
+        git push origin --delete firmware                              # delete branch with the firmware
+        git commit --allow-empty -m "Initial commit on orphan branch"  # Empty commit
+        git push -u origin empty_branch                                # push empty branch in repo
+        git branch -m firmware                                         # rename local empty_branch to firmware
+        git push origin -u firmware                                    # push branch firmware to repo
+        git push origin --delete empty_branch                          # delete empty_branch
+
+    - name: Generate trigger.txt file
+      run: |
+         echo ${{ github.run_number }}  &> trigger.txt
+         echo "$(<trigger.txt)"
+    - name: Push trigger.txt to start workflow in repo https://github.com/arendst/Tasmota-firmware
+      uses: Jason2866/copy_file_to_another_repo_action@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_ACTIONS_GITHUB }}
+      with:
+        source_file: 'trigger.txt'
+        destination_repo: 'arendst/Tasmota-firmware'
+        destination_branch: 'action-development'
+        user_email: 'github-actions@github.com'
+        user_name: 'github-actions'
